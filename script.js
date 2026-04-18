@@ -8,6 +8,20 @@
   const CARD_W = 120;
   const CARD_H = 170;
 
+  const PIP_POSITIONS = {
+    '2':  [[60, 55], [60, 115]],
+    '3':  [[60, 55], [60, 85], [60, 115]],
+    '4':  [[38, 55], [82, 55], [38, 115], [82, 115]],
+    '5':  [[38, 55], [82, 55], [60, 85], [38, 115], [82, 115]],
+    '6':  [[38, 55], [82, 55], [38, 85], [82, 85], [38, 115], [82, 115]],
+    '7':  [[38, 55], [82, 55], [60, 70], [38, 85], [82, 85], [38, 115], [82, 115]],
+    '8':  [[38, 55], [82, 55], [60, 70], [38, 85], [82, 85], [60, 100], [38, 115], [82, 115]],
+    '9':  [[38, 52], [82, 52], [38, 72], [82, 72], [60, 85], [38, 98], [82, 98], [38, 118], [82, 118]],
+    '10': [[38, 52], [82, 52], [60, 62], [38, 72], [82, 72], [38, 98], [82, 98], [60, 108], [38, 118], [82, 118]],
+  };
+
+  const PIP_SIZE = { '2': 36, '3': 36, '4': 28, '5': 28, '6': 26, '7': 24, '8': 24, '9': 22, '10': 22 };
+
   const hand = document.getElementById('hand');
   const dropZone = document.getElementById('drop-zone');
   const handCountEl = document.getElementById('hand-count');
@@ -32,8 +46,29 @@
     return suit === '♥' || suit === '♦';
   }
 
+  function buildCenter(card, color) {
+    const v = card.value;
+    const s = card.suit;
+    if (v === 'A') {
+      return `<text x="60" y="85" font-size="72" fill="${color}" text-anchor="middle" dominant-baseline="central">${s}</text>`;
+    }
+    if (v === 'J' || v === 'Q' || v === 'K') {
+      return `
+        <text x="60" y="80" font-size="54" font-weight="bold" fill="${color}" text-anchor="middle" dominant-baseline="central" font-family="Georgia, serif">${v}</text>
+        <text x="60" y="120" font-size="26" fill="${color}" text-anchor="middle" dominant-baseline="central">${s}</text>
+      `;
+    }
+    const pips = PIP_POSITIONS[v];
+    const size = PIP_SIZE[v];
+    return pips.map(([x, y]) => {
+      const rot = y > 85 ? ` transform="rotate(180 ${x} ${y})"` : '';
+      return `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" text-anchor="middle" dominant-baseline="central"${rot}>${s}</text>`;
+    }).join('');
+  }
+
   function createCardEl(card) {
     const color = isRed(card.suit) ? '#B8000F' : '#1A1A1A';
+    const cornerSize = card.value === '10' ? 16 : 20;
     const el = document.createElement('div');
     el.className = 'card';
     el.dataset.id = card.id;
@@ -42,11 +77,11 @@
         <div class="card-face card-front">
           <svg viewBox="0 0 120 170" width="120" height="170">
             <rect x="0" y="0" width="120" height="170" rx="10" ry="10" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1"/>
-            <text x="12" y="26" font-size="20" font-weight="bold" fill="${color}" font-family="Georgia, serif">${card.value}</text>
+            <text x="12" y="26" font-size="${cornerSize}" font-weight="bold" fill="${color}" font-family="Georgia, serif">${card.value}</text>
             <text x="12" y="44" font-size="16" fill="${color}">${card.suit}</text>
-            <text x="60" y="108" font-size="60" fill="${color}" text-anchor="middle">${card.suit}</text>
+            ${buildCenter(card, color)}
             <g transform="rotate(180 60 85)">
-              <text x="12" y="26" font-size="20" font-weight="bold" fill="${color}" font-family="Georgia, serif">${card.value}</text>
+              <text x="12" y="26" font-size="${cornerSize}" font-weight="bold" fill="${color}" font-family="Georgia, serif">${card.value}</text>
               <text x="12" y="44" font-size="16" fill="${color}">${card.suit}</text>
             </g>
           </svg>
