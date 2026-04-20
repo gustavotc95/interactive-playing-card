@@ -163,6 +163,11 @@
     state.turn = "p1";
     state.gameOver = false;
     winnerEl.classList.add("hidden");
+    winnerEl.classList.remove("celebrating", "mourning");
+    if (confettiLayer) { confettiLayer.remove(); confettiLayer = null; }
+    if (defeatLayer) { defeatLayer.remove(); defeatLayer = null; }
+    const boardEl = document.querySelector(".board");
+    if (boardEl) boardEl.classList.remove("defeat-shake");
 
     // Distribui 32 cartas na mesa
     for (let c = 0; c < COLS; c++) {
@@ -365,12 +370,91 @@
 
   function showWinner() {
     const s1 = sumOf("p1"), s2 = sumOf("p2");
-    winnerEl.classList.remove("hidden", "p1", "p2", "tie");
+    winnerEl.classList.remove("hidden", "p1", "p2", "tie", "celebrating", "mourning");
     let winner;
     if (s1 !== s2) winner = s1 > s2 ? "p1" : "p2";
     else winner = tiebreak();
-    if (winner === "p1") { winnerEl.textContent = "★ PLAYER 1 WINS ★"; winnerEl.classList.add("p1"); }
-    else { winnerEl.textContent = "★ PLAYER 2 WINS ★"; winnerEl.classList.add("p2"); }
+    if (winner === "p1") {
+      winnerEl.textContent = "★ PLAYER 1 WINS ★";
+      winnerEl.classList.add("p1", "celebrating");
+      launchConfetti("p1");
+    } else {
+      winnerEl.textContent = "✖ PLAYER 2 WINS ✖";
+      winnerEl.classList.add("p2", "mourning");
+      launchDefeat();
+    }
+  }
+
+  /* ---------- FESTA ---------- */
+  let confettiLayer = null;
+  function launchConfetti(who) {
+    if (confettiLayer) confettiLayer.remove();
+    confettiLayer = document.createElement("div");
+    confettiLayer.className = "confetti-layer";
+    document.body.appendChild(confettiLayer);
+
+    const palette = who === "p1"
+      ? ["#ffffff", "#F5B7C1", "#F5C518", "#9ED1FF", "#B6F5B7"]
+      : ["#F5C518", "#FF8C42", "#E53935", "#ffffff", "#9B59B6"];
+
+    const total = 140;
+    for (let i = 0; i < total; i++) {
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      const left = Math.random() * 100;
+      const size = 6 + Math.random() * 10;
+      const h = size * (1 + Math.random() * 0.8);
+      const duration = 2.2 + Math.random() * 2.2;
+      const delay = Math.random() * 0.8;
+      const rot = Math.floor(Math.random() * 360);
+      p.style.left = left + "vw";
+      p.style.width = size + "px";
+      p.style.height = h + "px";
+      p.style.background = palette[Math.floor(Math.random() * palette.length)];
+      p.style.animationDuration = duration + "s";
+      p.style.animationDelay = delay + "s";
+      p.style.transform = `rotate(${rot}deg)`;
+      confettiLayer.appendChild(p);
+    }
+
+    setTimeout(() => {
+      if (confettiLayer) { confettiLayer.remove(); confettiLayer = null; }
+    }, 5500);
+  }
+
+  let defeatLayer = null;
+  function launchDefeat() {
+    if (defeatLayer) defeatLayer.remove();
+    defeatLayer = document.createElement("div");
+    defeatLayer.className = "defeat-layer";
+    document.body.appendChild(defeatLayer);
+
+    // cinzas caindo
+    const total = 70;
+    for (let i = 0; i < total; i++) {
+      const p = document.createElement("div");
+      p.className = "defeat-ash";
+      const left = Math.random() * 100;
+      const size = 3 + Math.random() * 5;
+      const dur = 4 + Math.random() * 4;
+      const delay = Math.random() * 2;
+      const dx = (Math.random() - 0.5) * 120;
+      p.style.left = left + "vw";
+      p.style.width = size + "px";
+      p.style.height = size + "px";
+      p.style.animationDuration = dur + "s";
+      p.style.animationDelay = delay + "s";
+      p.style.setProperty("--dx", dx + "px");
+      defeatLayer.appendChild(p);
+    }
+
+    const boardEl = document.querySelector(".board");
+    if (boardEl) {
+      boardEl.classList.remove("defeat-shake");
+      void boardEl.offsetWidth;
+      boardEl.classList.add("defeat-shake");
+      setTimeout(() => boardEl.classList.remove("defeat-shake"), 700);
+    }
   }
 
   // Desempate: maior carta individual da rede; depois soma de ranks; depois aleatório.
