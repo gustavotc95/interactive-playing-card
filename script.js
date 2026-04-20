@@ -387,5 +387,12 @@
   window.addEventListener("resize", renderConnections);
   btnReset.addEventListener("click", init);
 
+  const rotateDismissBtn = document.getElementById("rotate-dismiss");
+  if (rotateDismissBtn) {
+    rotateDismissBtn.addEventListener("click", () => {
+      document.body.classList.add("rotate-dismissed");
+    });
+  }
+
   init();
 })();
