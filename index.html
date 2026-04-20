@@ -3,27 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carta de baralho interativa</title>
+  <title>Jogo da Rede — Player 1 vs NPC</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h2 class="sr-only">Mão de cartas interativa: arraste cartas para a mesa, toque para virar.</h2>
+  <div class="board">
+    <!-- PLAYER 2 (topo) -->
+    <section class="player" id="player-2">
+      <div class="player-header">
+        <h2 class="player-name">PLAYER 2</h2>
+        <div class="sum" id="p2-sum">SOMA DA REDE = 0</div>
+      </div>
+      <div class="hand" id="p2-hand"></div>
+    </section>
 
-  <div class="stage">
-    <div class="hint">arraste pra mesa · toque pra virar</div>
+    <!-- MEIO: CAMADAS OCULTAS + LIMBO -->
+    <section class="middle">
+      <div class="grid-area">
+        <div class="grid-label">
+          CAMADAS OCULTAS
+          <div class="grid-sub">(onde as ações acontecem)</div>
+        </div>
+        <div class="col-labels">
+          <span class="col-label entrada">camada de entrada<br><em>(imune a ações)</em></span>
+          <span class="col-label saida">camada de saída<br><em>(imune a ações)</em></span>
+        </div>
+        <div class="grid-wrap">
+          <div id="grid" class="grid"></div>
+          <svg id="connections" class="connections"></svg>
+        </div>
+      </div>
 
-    <div id="drop-zone" class="drop-zone">
-      <span class="drop-label">mesa</span>
+      <div class="limbo">
+        <h3 class="limbo-label">LIMBO</h3>
+        <div id="limbo-stack" class="limbo-stack"></div>
+      </div>
+    </section>
+
+    <!-- PLAYER 1 (embaixo) -->
+    <section class="player" id="player-1">
+      <div class="hand" id="p1-hand"></div>
+      <div class="player-header bottom">
+        <h2 class="player-name">PLAYER 1</h2>
+        <div class="sum" id="p1-sum">SOMA DA REDE = 0</div>
+      </div>
+    </section>
+
+    <!-- STATUS / WINNER -->
+    <div class="status-bar">
+      <div id="turn-msg" class="turn-msg">Sua vez — jogue na coluna <b>1</b></div>
+      <div id="winner" class="winner hidden"></div>
+      <button id="btn-reset" type="button" class="btn-reset">Nova partida</button>
     </div>
-
-    <div id="hand" class="hand"></div>
-  </div>
-
-  <div class="controls">
-    <button id="btn-minus" type="button" aria-label="Remover carta">−</button>
-    <span class="count"><span id="hand-count">5</span> cartas</span>
-    <button id="btn-plus" type="button" aria-label="Adicionar carta">+</button>
-    <button id="btn-reset" type="button" class="btn-reset">Nova mão</button>
   </div>
 
   <script src="script.js"></script>
